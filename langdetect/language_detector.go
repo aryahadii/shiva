@@ -7,12 +7,26 @@ import (
 	"github.com/aryahadii/shiva/model"
 )
 
+var (
+	profilesDirectory = "langdetect_profiles/"
+)
+
 type LanguageDetector struct {
+	WordProbMap map[string][]int
+	Languages   []string
 }
 
 // New creates new instance of LanguageDetector
 func New() *LanguageDetector {
-	return nil
+	langDetector := &LanguageDetector{}
+
+	var err error
+	langDetector.WordProbMap, langDetector.Languages, err = initWordProbMap(profilesDirectory)
+	if err != nil {
+		return nil
+	}
+
+	return langDetector
 }
 
 // Detect detects language of text
