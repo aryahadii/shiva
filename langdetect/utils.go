@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"path/filepath"
-	"strconv"
+	"sort"
+
+	"github.com/aryahadii/shiva/model"
 )
 
 func isLatinRune(r rune) bool {
@@ -37,7 +39,7 @@ func cleanText(text string) string {
 		var nonLatinText string
 		for _, runeVal := range text {
 			if !isLatinRune(runeVal) {
-				nonLatinText += strconv.QuoteRune(runeVal)
+				nonLatinText += string(runeVal)
 			}
 		}
 		return nonLatinText
@@ -75,16 +77,38 @@ func initWordProbMap(profilesDir string) (wordProb map[string][]int, langs []str
 			return wordProb, langs, err
 		}
 
-		// Add profile to wordProb
+		// Add new language
 		langs = append(langs, file.Name())
+		for key := range wordProb {
+			wordProb[key] = append(wordProb[key], 0)
+		}
+		// Add profile to wordProb
 		for str, freq := range prof.Frequencies {
-			if _, ok := wordProb[str]; ok {
-				wordProb[str] = append(wordProb[str], freq)
-			} else {
-				wordProb[str] = []int{freq}
+			if _, ok := wordProb[str]; !ok {
+				wordProb[str] = make([]int, len(langs))
 			}
+			wordProb[str][len(wordProb[str])-1] = freq
 		}
 	}
 
 	return wordProb, langs, nil
+}
+
+func maxProbability(prob []float64) float64 {
+	var sum, max float64
+	for _, probability := range prob {
+		sum += probability
+		if probability > max {
+			max = probability
+		}
+	}
+
+	if sum == 0 {
+		return 0
+	}
+	return max / sum
+}
+
+func sortProbability(langs []model.LanguageProbablity) {
+	sort.Sort(sort.Reverse(model.ByProbability(langs)))
 }
