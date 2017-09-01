@@ -26,7 +26,7 @@ func TestDetectByProbability(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error occured: %v\n", err)
 	}
-	if result != model.LanguageCode("fa") {
+	if result != model.LanguageCode("en") {
 		t.Errorf("Wrong language detection!\n")
 	}
 }
